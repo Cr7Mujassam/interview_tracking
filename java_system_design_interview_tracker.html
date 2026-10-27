@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Week Java & Tech Interview Prep Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid font-bold fa-code text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">PrepPulse 8-Week</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Java & System Design Interview Tracker</p>
+                </div>
+            </div>
+
+            <!-- Actions Header -->
+            <div class="flex items-center space-x-3">
+                <button onclick="exportData()" title="Export JSON" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm transition">
+                    <i class="fa-solid fa-download mr-1 sm:mr-2"></i><span class="hidden sm:inline">Export</span>
+                </button>
+                <label title="Import JSON" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm transition cursor-pointer">
+                    <i class="fa-solid fa-upload mr-1 sm:mr-2"></i><span class="hidden sm:inline">Import</span>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
+                <button onclick="toggleDarkMode()" title="Toggle Theme" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm transition">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+                <button onclick="resetData()" title="Reset Progress" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-sm transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Banner & Global Progress Overview -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Total Progress Card -->
+            <div class="md:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs font-semibold text-brand-500 uppercase tracking-wider">Overall Roadmap Progress</span>
+                            <h2 class="text-2xl font-bold mt-1">Interview Readiness</h2>
+                        </div>
+                        <span id="overallPercentage" class="text-3xl font-extrabold text-brand-500">0%</span>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-4 overflow-hidden">
+                        <div id="overallProgressBar" class="bg-gradient-to-r from-brand-500 to-indigo-500 h-3 rounded-full transition-all duration-500 w-0"></div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span id="completedTopicsCount">0 / 0 Topics Completed</span>
+                    <span id="currentWeekIndicator">Week 1 Active</span>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Coding / SQL Solved</span>
+                    <div class="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+                        <i class="fa-solid fa-code-commit text-sm"></i>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <div class="text-3xl font-bold" id="totalProblemsSolved">0</div>
+                    <div class="text-xs text-gray-400 mt-1">Goal: 50+ Target Problems</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="adjustProblems(1)" class="px-2.5 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded font-medium shadow-sm transition">+ Solved</button>
+                    <button onclick="adjustProblems(-1)" class="px-2.5 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded font-medium transition">-1</button>
+                </div>
+            </div>
+
+            <!-- Streak & Mocks Card -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Prep Metrics</span>
+                    <div class="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-lg">
+                        <i class="fa-solid fa-fire text-sm"></i>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 my-2">
+                    <div>
+                        <div class="text-2xl font-bold" id="studyHoursLogged">0.0h</div>
+                        <div class="text-xs text-gray-400">Hours Studied</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold" id="mocksCompleted">0</div>
+                        <div class="text-xs text-gray-400">Mocks Done</div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-xs text-gray-500 border-t border-gray-100 dark:border-gray-700/50 pt-2">
+                    <span>Target: ~90 Hours Total</span>
+                    <button onclick="incrementMock()" class="text-brand-500 font-semibold hover:underline">+ Log Mock</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Schedule Breakdown & Interactive Timer -->
+        <section class="bg-gradient-to-r from-gray-900 to-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-clock text-9xl"></i>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                <!-- Schedule Information -->
+                <div class="space-y-3 lg:max-w-xl">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-400 border border-brand-500/30">
+                            Daily Discipline Protocol
+                        </span>
+                        <span class="text-xs text-gray-400">Total: 2 Hours Daily</span>
+                    </div>
+                    <h2 class="text-xl font-bold">130-Minute Daily Execution Blueprint</h2>
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        Consistency over intensity. Strictly practice before checking off items. Never mark topics completed without actual hands-on coding or concept validation.
+                    </p>
+
+                    <!-- Daily Blocks -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+                        <div onclick="selectTimerBlock(30, 'Learning Concept')" class="cursor-pointer bg-white/5 hover:bg-white/10 p-2.5 rounded-xl border border-white/10 transition">
+                            <div class="text-xs font-semibold text-brand-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-book-open"></i> 30 mins
+                            </div>
+                            <div class="text-xs text-gray-200 mt-1 font-medium">Learning</div>
+                        </div>
+
+                        <div onclick="selectTimerBlock(45, 'Coding / SQL Practice')" class="cursor-pointer bg-white/5 hover:bg-white/10 p-2.5 rounded-xl border border-white/10 transition">
+                            <div class="text-xs font-semibold text-green-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-laptop-code"></i> 45 mins
+                            </div>
+                            <div class="text-xs text-gray-200 mt-1 font-medium">Coding / SQL</div>
+                        </div>
+
+                        <div onclick="selectTimerBlock(30, 'Interview Questions')" class="cursor-pointer bg-white/5 hover:bg-white/10 p-2.5 rounded-xl border border-white/10 transition">
+                            <div class="text-xs font-semibold text-purple-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-comments"></i> 30 mins
+                            </div>
+                            <div class="text-xs text-gray-200 mt-1 font-medium">Interview Qs</div>
+                        </div>
+
+                        <div onclick="selectTimerBlock(15, 'Revision & Tracker Update')" class="cursor-pointer bg-white/5 hover:bg-white/10 p-2.5 rounded-xl border border-white/10 transition">
+                            <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-square-check"></i> 15 mins
+                            </div>
+                            <div class="text-xs text-gray-200 mt-1 font-medium">Revision</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Embedded Active Timer Container -->
+                <div class="bg-gray-800/90 border border-gray-700/80 rounded-2xl p-5 w-full lg:w-80 flex flex-col items-center justify-center text-center shadow-inner">
+                    <span id="timerTaskLabel" class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Session Timer</span>
+                    <div id="timerDisplay" class="text-4xl font-mono font-bold my-1 tracking-tight text-brand-400">30:00</div>
+                    <div class="flex items-center gap-2 mt-3">
+                        <button id="startTimerBtn" onclick="toggleTimer()" class="px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-play"></i> Start
+                        </button>
+                        <button onclick="resetTimer()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg text-xs font-semibold transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weeks Navigation Tabs -->
+        <section class="space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-brand-500 text-lg"></i>
+                    <h2 class="text-xl font-bold">8-Week Roadmap Checklist</h2>
+                </div>
+                <!-- Week Selector Pill Tabs -->
+                <div class="flex items-center space-x-1 overflow-x-auto max-w-full pb-2 sm:pb-0 scrollbar-none" id="weekTabsContainer">
+                    <!-- Dynamic Buttons Generated via JS -->
+                </div>
+            </div>
+
+            <!-- Active Week Content Container -->
+            <div id="activeWeekContainer" class="space-y-6">
+                <!-- Dynamically populated week details -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-green-400 dark:text-green-600"></i>
+        <span id="toastMsg" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // --- 8-WEEK MASTER PLAN DATA STRUCTURE ---
+        const ROADMAP_DATA = [
+            {
+                week: 1,
+                title: "Core Java & OOP Fundamentals",
+                targetProblems: 12,
+                subtitle: "Goal: 2 Coding Problems Daily + OOP Deep Dive",
+                topics: [
+                    { id: "w1_1", name: "OOP Core Principles (Encapsulation, Inheritance, Polymorphism, Abstraction)" },
+                    { id: "w1_2", name: "Abstract Classes vs Interfaces & Default/Static Methods" },
+                    { id: "w1_3", name: "Memory Management: JVM Stack vs Heap & Garbage Collection Basics" },
+                    { id: "w1_4", name: "Method Overloading vs Overriding & Covariant Return Types" },
+                    { id: "w1_5", name: "Access Modifiers, Static Keyword, Final / Immutable Classes" },
+                    { id: "w1_6", name: "String, StringBuilder, StringBuffer & String Pool Internals" },
+                    { id: "w1_7", name: "Exception Handling Hierarchy, Checked vs Unchecked, Try-With-Resources" },
+                    { id: "w1_8", name: "Java Pass-by-Value mechanics & Primitive vs Reference types" }
+                ],
+                interviewQuestions: [
+                    "Why is String immutable in Java and how do you create a custom Immutable class?",
+                    "Difference between final, finally, and finalize()?",
+                    "How does garbage collection work in Java and what are standard collectors?",
+                    "Can we override a private or static method in Java? Why or why not?"
+                ]
+            },
+            {
+                week: 2,
+                title: "Collections Framework & Java 8 Features",
+                targetProblems: 14,
+                subtitle: "Goal: Master Map Internals, Streams API & Lambdas",
+                topics: [
+                    { id: "w2_1", name: "Collections Hierarchy: List, Set, Queue, Deque interfaces" },
+                    { id: "w2_2", name: "HashMap Internals: Bucket Indexing, Hash Collisions & Treeification" },
+                    { id: "w2_3", name: "ConcurrentHashMap vs Hashtable vs SynchronizedMap" },
+                    { id: "w2_4", name: "Comparable vs Comparator interfaces & Sorting logic" },
+                    { id: "w2_5", name: "Java 8 Lambdas, Functional Interfaces (@FunctionalInterface, Predicate, Consumer, Function, Supplier)" },
+                    { id: "w2_6", name: "Streams API: map, filter, flatMap, reduce, collect, group-by operations" },
+                    { id: "w2_7", name: "Optional Class to prevent NullPointerExceptions" },
+                    { id: "w2_8", name: "ArrayList vs LinkedList memory performance characteristics" }
+                ],
+                interviewQuestions: [
+                    "Explain HashMap internal mechanics in Java 8+ when hash collision occurs.",
+                    "Difference between flatMap() and map() in Java Streams with code example?",
+                    "How does ConcurrentHashMap achieve concurrency without locking the whole map?",
+                    "What is Method Reference and how does it connect to Functional Interfaces?"
+                ]
+            },
+            {
+                week: 3,
+                title: "Multithreading, Concurrency & DSA",
+                targetProblems: 14,
+                subtitle: "Goal: Thread Lifecycles, Locks, Executor Framework & Core DSA",
+                topics: [
+                    { id: "w3_1", name: "Thread Lifecycle, States, Runnable vs Callable interfaces" },
+                    { id: "w3_2", name: "Synchronization, ReentrantLock, ReadWriteLock & Deadlocks" },
+                    { id: "w3_3", name: "Volatile keyword, Atomic Operations & Java Memory Model (JMM)" },
+                    { id: "w3_4", name: "Executor Framework: ThreadPoolExecutor, Fixed, Cached, Scheduled Pools" },
+                    { id: "w3_5", name: "CompletableFuture & Asynchronous Programming" },
+                    { id: "w3_6", name: "DSA: Arrays, Two Pointers, Sliding Window technique" },
+                    { id: "w3_7", name: "DSA: LinkedLists, Stacks, Queues & Binary Trees traversal" },
+                    { id: "w3_8", name: "DSA: Sorting, Binary Search & Hash Table problem patterns" }
+                ],
+                interviewQuestions: [
+                    "How do you detect and prevent a Deadlock condition in Java applications?",
+                    "Difference between submit() and execute() methods in ExecutorService?",
+                    "Explain the volatile keyword and when it is insufficient for thread safety.",
+                    "How to handle inter-thread communication using wait(), notify(), and notifyAll()?"
+                ]
+            },
+            {
+                week: 4,
+                title: "SQL, Relational Databases & Indexing",
+                targetProblems: 10,
+                subtitle: "Goal: Complex Queries, Joins, ACID, Indexing & Normalization",
+                topics: [
+                    { id: "w4_1", name: "SQL Fundamentals: SELECT, GROUP BY, HAVING, ORDER BY execution order" },
+                    { id: "w4_2", name: "JOIN Types: INNER, LEFT, RIGHT, FULL OUTER, CROSS & SELF JOIN" },
+                    { id: "w4_3", name: "Subqueries, Correlated Subqueries & CTEs (WITH clause)" },
+                    { id: "w4_4", name: "Window Functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LEAD(), LAG()" },
+                    { id: "w4_5", name: "ACID Properties & Transaction Isolation Levels (Dirty read, Non-repeatable, Phantom)" },
+                    { id: "w4_6", name: "Database Indexing: B-Tree, Hash Indexes, Clustered vs Non-Clustered" },
+                    { id: "w4_7", name: "Database Normalization (1NF, 2NF, 3NF, BCNF) & Denormalization" },
+                    { id: "w4_8", name: "Query Optimization: EXPLAIN Plan, Index Scan vs Index Seek" }
+                ],
+                interviewQuestions: [
+                    "Difference between RANK(), DENSE_RANK(), and ROW_NUMBER()?",
+                    "Explain B-Tree indexing and how it speeds up query execution.",
+                    "What are the four isolation levels and what anomalies do they prevent?",
+                    "Write a query to find the Nth highest salary in an Employee table."
+                ]
+            },
+            {
+                week: 5,
+                title: "Spring Boot, IoC & Hibernate / JPA",
+                targetProblems: 8,
+                subtitle: "Goal: Dependency Injection, Annotations, Entity Lifecycle & ORM",
+                topics: [
+                    { id: "w5_1", name: "Spring Core: Inversion of Control (IoC), Dependency Injection (Constructor vs Field)" },
+                    { id: "w5_2", name: "Spring Bean Scopes (Singleton, Prototype, Request, Session) & Lifecycle" },
+                    { id: "w5_3", name: "Spring Boot Auto-Configuration (@SpringBootApplication internals)" },
+                    { id: "w5_4", name: "RESTful Web Services: @RestController, PathVariables, RequestParam, DTOs" },
+                    { id: "w5_5", name: "Spring Data JPA & Hibernate: Entity Mapping (@Entity, @Table, Relationships)" },
+                    { id: "w5_6", name: "Hibernate N+1 Problem & Solutions (JOIN FETCH, EntityGraph)" },
+                    { id: "w5_7", name: "Spring Transaction Management: @Transactional propagation & isolation" },
+                    { id: "w5_8", name: "Exception Handling with @ControllerAdvice & @ExceptionHandler" }
+                ],
+                interviewQuestions: [
+                    "How does Spring Boot Auto-configuration work under the hood?",
+                    "What is the N+1 select problem in Hibernate and how do you solve it?",
+                    "Difference between @Component, @Service, and @Repository annotations?",
+                    "How does @Transactional annotation work with Spring AOP Proxies?"
+                ]
+            },
+            {
+                week: 6,
+                title: "Microservices Architecture & Design Patterns",
+                targetProblems: 8,
+                subtitle: "Goal: Service Communication, Resiliency & Gang of Four Patterns",
+                topics: [
+                    { id: "w6_1", name: "Microservices Core Principles vs Monoliths" },
+                    { id: "w6_2", name: "Service Discovery (Eureka), API Gateway & Routing" },
+                    { id: "w6_3", name: "Inter-Service Communication: Synchronous (REST/gRPC) vs Asynchronous (Kafka/RabbitMQ)" },
+                    { id: "w6_4", name: "Resilience Patterns: Circuit Breaker (Resilience4j), Rate Limiting, Retry" },
+                    { id: "w6_5", name: "Creational Patterns: Singleton, Factory, Builder, Prototype" },
+                    { id: "w6_6", name: "Structural Patterns: Adapter, Decorator, Proxy, Facade" },
+                    { id: "w6_7", name: "Behavioral Patterns: Observer, Strategy, Chain of Responsibility" },
+                    { id: "w6_8", name: "Distributed Transactions: Saga Pattern (Choreography vs Orchestration) & 2PC" }
+                ],
+                interviewQuestions: [
+                    "How do you implement the Circuit Breaker pattern in Microservices?",
+                    "Explain the Saga pattern for managing distributed transactions across microservices.",
+                    "How to handle breaking API changes without down-time in microservices?",
+                    "When would you pick Strategy Pattern over standard IF-ELSE conditional logic?"
+                ]
+            },
+            {
+                week: 7,
+                title: "System Design (HLD/LLD) & Portfolio Projects",
+                targetProblems: 6,
+                subtitle: "Goal: High Level Design, Scalability, Caching & Project Prep",
+                topics: [
+                    { id: "w7_1", name: "Scalability Concepts: Horizontal vs Vertical, Load Balancing Algorithms" },
+                    { id: "w7_2", name: "Caching Strategies: Redis, Memcached, Write-Through, Write-Back, Cache-Aside" },
+                    { id: "w7_3", name: "Database Sharding, Replication (Leader-Follower), CAP Theorem" },
+                    { id: "w7_4", name: "System Design Framework: Requirements, SLA/Capacity, APIs, Data Schema" },
+                    { id: "w7_5", name: "Classic HLD System Design: URL Shortener (TinyURL) or Rate Limiter" },
+                    { id: "w7_6", name: "Classic HLD System Design: Notification System or E-Commerce Checkout" },
+                    { id: "w7_7", name: "Low-Level Design (LLD): Parking Lot or Elevator System Object Model" },
+                    { id: "w7_8", name: "Project Polish: Tech Stack presentation, key architectural decisions & achievements" }
+                ],
+                interviewQuestions: [
+                    "How do you design a Distributed Rate Limiter (Token Bucket / Leaky Bucket)?",
+                    "Explain CAP Theorem and trade-offs between Consistency and Availability.",
+                    "How to handle Cache Stampede (Thundering Herd problem)?",
+                    "Walk me through your personal project's architecture and biggest technical challenge."
+                ]
+            },
+            {
+                week: 8,
+                title: "Interview Revision, Behavioral & Mock Interviews",
+                targetProblems: 8,
+                subtitle: "Goal: End-to-End Mocks, STAR Method & Rapid Revision",
+                topics: [
+                    { id: "w8_1", name: "Comprehensive Revision: Core Java, HashMap, Concurrency" },
+                    { id: "w8_2", name: "Comprehensive Revision: Spring Boot, JPA & SQL Complex Queries" },
+                    { id: "w8_3", name: "Behavioral Interviews: STAR Method (Situation, Task, Action, Result) stories" },
+                    { id: "w8_4", name: "Mock Interview #1: Core Java & Data Structures Focus" },
+                    { id: "w8_5", name: "Mock Interview #2: Spring Boot, REST & SQL Focus" },
+                    { id: "w8_6", name: "Mock Interview #3: System Design & Microservices Architecture" },
+                    { id: "w8_7", name: "Resume & Portfolio Project Walkthrough Polish" },
+                    { id: "w8_8", name: "Final Dry Run: Quick Refresher on Top 50 Java Interview Questions" }
+                ],
+                interviewQuestions: [
+                    "Tell me about a time you resolved a major bug in production under tight deadline.",
+                    "How do you handle technical disagreements with senior developers?",
+                    "Where do you see yourself technically in the next 2-3 years?",
+                    "Explain a complex technical concept to a non-technical stakeholder."
+                ]
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let appState = {
+            currentWeek: 1,
+            completedTopics: {}, // { 'w1_1': true }
+            weekNotes: {}, // { 1: "My notes..." }
+            problemsSolved: 0,
+            mocksCompleted: 0,
+            studyHours: 0,
+            darkMode: true
+        };
+
+        // --- LOCAL STORAGE HELPERS ---
+        const STORAGE_KEY = 'prep_pulse_tracker_data_v1';
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    appState = { ...appState, ...JSON.parse(saved) };
+                } catch(e) {
+                    console.error("Failed to parse stored state", e);
+                }
+            }
+            // Sync theme
+            if (appState.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon();
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            updateOverallMetrics();
+        }
+
+        // --- THEME TOGGLE ---
+        function toggleDarkMode() {
+            appState.darkMode = !appState.darkMode;
+            if (appState.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon();
+            saveState();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            if (appState.darkMode) {
+                icon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                icon.className = 'fa-solid fa-moon text-gray-600';
+            }
+        }
+
+        // --- RENDER APP ---
+        function initApp() {
+            loadState();
+            renderWeekTabs();
+            renderActiveWeek();
+            updateOverallMetrics();
+        }
+
+        // Render Tabs
+        function renderWeekTabs() {
+            const container = document.getElementById('weekTabsContainer');
+            container.innerHTML = '';
+
+            ROADMAP_DATA.forEach(weekData => {
+                const isActive = weekData.week === appState.currentWeek;
+                const completedCount = weekData.topics.filter(t => appState.completedTopics[t.id]).length;
+                const isFinished = completedCount === weekData.topics.length && weekData.topics.length > 0;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => switchWeek(weekData.week);
+                btn.className = `flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                    isActive 
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20' 
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 border border-gray-200 dark:border-gray-700'
+                }`;
+
+                btn.innerHTML = `
+                    <span>Week ${weekData.week}</span>
+                    ${isFinished 
+                        ? '<i class="fa-solid fa-circle-check text-green-300"></i>' 
+                        : `<span class="px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}">${completedCount}/${weekData.topics.length}</span>`}
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // Switch Active Week
+        function switchWeek(weekNum) {
+            appState.currentWeek = weekNum;
+            renderWeekTabs();
+            renderActiveWeek();
+            saveState();
+        }
+
+        // Render Active Week Details
+        function renderActiveWeek() {
+            const container = document.getElementById('activeWeekContainer');
+            const data = ROADMAP_DATA.find(w => w.week === appState.currentWeek);
+
+            if (!data) return;
+
+            const completedCount = data.topics.filter(t => appState.completedTopics[t.id]).length;
+            const weekProgressPct = Math.round((completedCount / data.topics.length) * 100) || 0;
+            const savedNote = appState.weekNotes[data.week] || '';
+
+            container.innerHTML = `
+                <!-- Week Overview Header -->
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-3">
+                                <span class="px-2.5 py-1 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-lg uppercase">
+                                    Week ${data.week} Objective
+                                </span>
+                                <span class="text-xs text-gray-400 font-medium">${data.subtitle}</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mt-2">${data.title}</h2>
+                        </div>
+                        <div class="flex items-center space-x-4 min-w-[200px]">
+                            <div class="flex-1">
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span>Week Progress</span>
+                                    <span>${weekProgressPct}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-brand-500 h-2.5 rounded-full transition-all duration-300" style="width: ${weekProgressPct}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2-Column Grid: Topics Checklist & Interview Qs/Notes -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Left Column: Topics Checklist (7 Cols) -->
+                    <div class="lg:col-span-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700/60 pb-3">
+                            <h3 class="font-bold text-base flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-brand-500"></i> Action Topics & Coding Checklist
+                            </h3>
+                            <span class="text-xs text-gray-400">Mark only when practiced</span>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            ${data.topics.map(topic => {
+                                const isChecked = !!appState.completedTopics[topic.id];
+                                return `
+                                    <label class="flex items-start space-x-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-750/50 cursor-pointer transition ${isChecked ? 'bg-brand-50/50 dark:bg-brand-950/10 border-brand-200 dark:border-brand-900/30' : ''}">
+                                        <input type="checkbox" onchange="toggleTopic('${topic.id}')" ${isChecked ? 'checked' : ''} class="mt-0.5 h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600">
+                                        <span class="text-sm font-medium ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}">
+                                            ${topic.name}
+                                        </span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interview Qs & Notes (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-6">
+                        
+                        <!-- High Priority Interview Questions Card -->
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-3">
+                            <h3 class="font-bold text-base flex items-center gap-2 border-b border-gray-100 dark:border-gray-700/60 pb-3">
+                                <i class="fa-solid fa-circle-question text-amber-500"></i> Core Interview Questions
+                            </h3>
+                            <ul class="space-y-2.5 text-xs text-gray-600 dark:text-gray-300">
+                                ${data.interviewQuestions.map(q => `
+                                    <li class="flex items-start gap-2 bg-gray-50 dark:bg-gray-750 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700/40">
+                                        <i class="fa-solid fa-chevron-right text-brand-500 text-[10px] mt-0.5"></i>
+                                        <span>${q}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+
+                        <!-- Notes & Key Takeaways Card -->
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700/60 pb-2">
+                                <h3 class="font-bold text-base flex items-center gap-2">
+                                    <i class="fa-solid fa-pen-to-square text-indigo-500"></i> Week Notes & Reflection
+                                </h3>
+                                <span class="text-xs text-gray-400">Auto-saved</span>
+                            </div>
+                            <textarea 
+                                id="weekNotesArea" 
+                                oninput="saveWeekNotes(this.value)" 
+                                placeholder="Write key concepts, weak spots, or problems to revisit this week..."
+                                class="w-full h-32 p-3 text-xs rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gray-200 resize-none"
+                            >${savedNote}</textarea>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- TOPIC CHECKBOX TOGGLE ---
+        function toggleTopic(topicId) {
+            appState.completedTopics[topicId] = !appState.completedTopics[topicId];
+            
+            // Increment hours automatically as encouragement (0.5 hrs per topic block)
+            if (appState.completedTopics[topicId]) {
+                appState.studyHours = parseFloat((appState.studyHours + 0.5).toFixed(1));
+                showToast("Topic checked! Added +0.5 study hours.");
+            } else {
+                appState.studyHours = Math.max(0, parseFloat((appState.studyHours - 0.5).toFixed(1)));
+            }
+
+            saveState();
+            renderWeekTabs();
+            renderActiveWeek();
+        }
+
+        // --- SAVE NOTES ---
+        let notesTimeout;
+        function saveWeekNotes(text) {
+            clearTimeout(notesTimeout);
+            notesTimeout = setTimeout(() => {
+                appState.weekNotes[appState.currentWeek] = text;
+                saveState();
+            }, 300);
+        }
+
+        // --- ADJUST METRICS ---
+        function adjustProblems(delta) {
+            appState.problemsSolved = Math.max(0, appState.problemsSolved + delta);
+            saveState();
+            showToast(delta > 0 ? "Problem added to counter!" : "Updated problems counter.");
+        }
+
+        function incrementMock() {
+            appState.mocksCompleted += 1;
+            appState.studyHours = parseFloat((appState.studyHours + 1.0).toFixed(1));
+            saveState();
+            showToast("Mock interview logged (+1.0 hr)!");
+        }
+
+        // --- GLOBAL METRICS CALCULATION ---
+        function updateOverallMetrics() {
+            // Total Topics Across All Weeks
+            let totalTopics = 0;
+            let completedTopicsCount = 0;
+
+            ROADMAP_DATA.forEach(week => {
+                totalTopics += week.topics.length;
+                week.topics.forEach(t => {
+                    if (appState.completedTopics[t.id]) {
+                        completedTopicsCount++;
+                    }
+                });
+            });
+
+            const overallPct = totalTopics > 0 ? Math.round((completedTopicsCount / totalTopics) * 100) : 0;
+
+            // DOM Updates
+            document.getElementById('overallPercentage').textContent = `${overallPct}%`;
+            document.getElementById('overallProgressBar').style.width = `${overallPct}%`;
+            document.getElementById('completedTopicsCount').textContent = `${completedTopicsCount} / ${totalTopics} Topics Practiced`;
+            document.getElementById('totalProblemsSolved').textContent = appState.problemsSolved;
+            document.getElementById('studyHoursLogged').textContent = `${appState.studyHours.toFixed(1)}h`;
+            document.getElementById('mocksCompleted').textContent = appState.mocksCompleted;
+            document.getElementById('currentWeekIndicator').textContent = `Week ${appState.currentWeek} Active`;
+        }
+
+        // --- INTERACTIVE TIMER LOGIC ---
+        let timerInterval = null;
+        let timerSecondsLeft = 30 * 60;
+        let timerIsRunning = false;
+        let currentTaskLabel = "Learning Concept";
+
+        function selectTimerBlock(minutes, label) {
+            if (timerIsRunning) pauseTimer();
+            timerSecondsLeft = minutes * 60;
+            currentTaskLabel = label;
+            document.getElementById('timerTaskLabel').textContent = label;
+            updateTimerDisplay();
+            showToast(`Timer set for ${label} (${minutes} mins)`);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSecondsLeft / 60);
+            const secs = timerSecondsLeft % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            if (timerIsRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timerSecondsLeft <= 0) return;
+            timerIsRunning = true;
+            document.getElementById('startTimerBtn').innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+            document.getElementById('startTimerBtn').className = "px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1";
+
+            timerInterval = setInterval(() => {
+                timerSecondsLeft--;
+                updateTimerDisplay();
+
+                if (timerSecondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerIsRunning = false;
+                    document.getElementById('startTimerBtn').innerHTML = '<i class="fa-solid fa-play"></i> Start';
+                    document.getElementById('startTimerBtn').className = "px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1";
+                    
+                    // Add timer duration to study hours
+                    appState.studyHours = parseFloat((appState.studyHours + 0.5).toFixed(1));
+                    saveState();
+                    showToast(`Session Completed! Great job focusing on ${currentTaskLabel}.`);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerIsRunning = false;
+            document.getElementById('startTimerBtn').innerHTML = '<i class="fa-solid fa-play"></i> Resume';
+            document.getElementById('startTimerBtn').className = "px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1";
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSecondsLeft = 30 * 60;
+            currentTaskLabel = "Learning Concept";
+            document.getElementById('timerTaskLabel').textContent = currentTaskLabel;
+            document.getElementById('startTimerBtn').innerHTML = '<i class="fa-solid fa-play"></i> Start';
+            updateTimerDisplay();
+        }
+
+        // --- DATA IMPORT / EXPORT & RESET ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `prep_pulse_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Backup downloaded successfully!");
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    appState = { ...appState, ...importedState };
+                    saveState();
+                    initApp();
+                    showToast("Progress imported successfully!");
+                } catch (err) {
+                    showToast("Invalid JSON file provided.");
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        function resetData() {
+            if (confirm("Are you sure you want to reset all interview preparation progress?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                appState = {
+                    currentWeek: 1,
+                    completedTopics: {},
+                    weekNotes: {},
+                    problemsSolved: 0,
+                    mocksCompleted: 0,
+                    studyHours: 0,
+                    darkMode: true
+                };
+                saveState();
+                initApp();
+                showToast("All data reset.");
+            }
+        }
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- INITIALIZE ON LOAD ---
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
